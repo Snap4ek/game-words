@@ -44,3 +44,41 @@ function initBoard() {
 
 // рисуем игровое поле
 initBoard();
+// обработчик нажатия на клавиши
+document.addEventListener("keydown", (e) => {
+
+    // если попыток не осталось
+    if (guessesRemaining === 0) {
+        // выходим из функции
+        return
+    }
+
+    // получаем код нажатой клавиши
+    let pressedKey = String(e.key)
+    // если нажат Backspace и в строке есть хоть один символ
+    if (pressedKey === "Backspace" && nextLetter !== 0) {
+        // то удаляем последнюю введённую букву
+        deleteLetter();
+        // и выходим из обработчика
+        return;
+    }
+
+    // если нажат Enter
+    if (pressedKey === "Enter") {
+        // проверяем введённое слово
+        checkGuess();
+        // и выходим из обработчика
+        return;
+    }
+
+    // проверяем, есть ли введённый символ в английском алфавите
+    let found = pressedKey.match(/[a-z]/gi)
+    // если нет
+    if (!found || found.length > 1) {
+        // то выходим из обработчика
+        return
+    // иначе добавляем введённую букву в новую клетку
+    } else {
+        insertLetter(pressedKey)
+    }
+})

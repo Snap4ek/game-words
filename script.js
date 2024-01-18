@@ -102,3 +102,107 @@ function insertLetter (pressedKey) {
     // помечаем, что дальше будем работать со следующей клеткой
     nextLetter += 1
 }
+// удаление символа
+function deleteLetter () {
+    // получаем доступ к текущей строке
+    let row = document.getElementsByClassName("letter-row")[6 - guessesRemaining]
+    // и к последнему введённому символу
+    let box = row.children[nextLetter - 1]
+    // очищаем содержимое клетки
+    box.textContent = ""
+    // убираем жирную обводку
+    box.classList.remove("filled-box")
+    // удаляем последний символ из массива с нашей текущей догадкой
+    currentGuess.pop()
+    // помечаем, что у нас теперь на одну свободную клетку больше
+    nextLetter -= 1
+}
+// проверка введённого слова
+function checkGuess () {
+    // получаем доступ к текущей строке
+    let row = document.getElementsByClassName("letter-row")[6 - guessesRemaining]
+    // переменная, где будет наша догадка
+    let guessString = ''
+    // делаем из загаданного слова массив символов
+    let rightGuess = Array.from(rightGuessString)
+
+    // собираем все введённые в строке буквы в одно слово
+    for (const val of currentGuess) {
+        guessString += val
+    }
+
+    // если в догадке меньше 5 букв — выводим уведомление, что букв не хватает
+    if (guessString.length != 5) {
+        // error означает, что уведомление будет в формате ошибки
+        toastr.error("Введены не все буквы!");
+        // и после вывода выходим из проверки догадки
+        return;
+    }
+
+    // если введённого слова нет в списке возможных слов — выводим уведомление
+    if (!WORDS.includes(guessString)) {
+        toastr.error("Такого слова нет в списке!")
+        // и после вывода выходим из проверки догадки
+        return;
+    }
+
+    // перебираем все буквы в строке, чтобы подсветить их нужным цветом
+    for (let i = 0; i < 5; i++) {
+        // убираем текущий цвет, если он был
+        let letterColor = ''
+        // получаем доступ к текущей клетке
+        let box = row.children[i]
+        // и к текущей букве в догадке
+        let letter = currentGuess[i]
+        
+        // смотрим, на каком месте в исходном слове стоит текущая буква
+        let letterPosition = rightGuess.indexOf(currentGuess[i])
+        // если такой буквы нет в исходном слове
+        if (letterPosition === -1) {
+            // закрашиваем клетку серым
+            letterColor = 'grey'
+        // иначе, когда мы точно знаем, что буква в слове есть
+        } else {
+            // если позиция в слове совпадает с текущей позицией 
+            if (currentGuess[i] === rightGuess[i]) {
+                // закрашиваем клетку зелёным
+                letterColor = 'green'
+            } else {
+                // в противном случае закрашиваем жёлтым
+                letterColor = 'yellow'
+            }
+
+            // заменяем обработанный символ на знак решётки, чтобы не использовать его на следующем шаге цикла
+            rightGuess[letterPosition] = "#"
+        }
+
+        // применяем выбранный цвет к фону клетки
+        box.style.backgroundColor = letterColor;
+    }
+
+    // если мы угадали
+    if (guessString === rightGuessString) {
+        // выводим сообщение об успехе
+        toastr.success("Вы выиграли!")
+        // обнуляем количество попыток
+        guessesRemaining = 0;
+        // выходим из проверки
+        return
+    // в противном случае
+    } else {
+        // уменьшаем счётчик попыток
+        guessesRemaining -= 1;
+        // обнуляем массив с символами текущей попытки
+        currentGuess = [];
+        // начинаем отсчёт букв заново
+        nextLetter = 0;
+
+        // если попытки закончились
+        if (guessesRemaining === 0) {
+            // выводим сообщение о проигрыше
+            toastr.error("У вас не осталось попыток. Вы проиграли!");
+            // и выводим загаданное слово
+            toastr.info(`Загаданное слово: "${rightGuessString}"`)
+        }
+    }
+}

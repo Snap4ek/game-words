@@ -82,3 +82,23 @@ document.addEventListener("keydown", (e) => {
         insertLetter(pressedKey)
     }
 })
+// выводим букву в клетку
+function insertLetter (pressedKey) {
+    // если клетки закончились
+    if (nextLetter === 5) {
+        // выходим из функции
+        return;
+    }
+    // получаем доступ к текущей строке
+    let row = document.getElementsByClassName("letter-row")[6 - guessesRemaining]
+    // и к текущей клетке, где будет появляться буква
+    let box = row.children[nextLetter]
+    // меняем текст в блоке с клеткой на нажатый символ
+    box.textContent = pressedKey
+    // добавляем к клетке жирную обводку
+    box.classList.add("filled-box")
+    // добавляем введённый символ к массиву, в которой хранится наша текущая попытка угадать слово
+    currentGuess.push(pressedKey)
+    // помечаем, что дальше будем работать со следующей клеткой
+    nextLetter += 1
+}
